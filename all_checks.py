@@ -1,6 +1,7 @@
 import shutil
 import sys
 import os 
+import socket
 
 def check_reboot():
     return os.path.exists("/run/reboot-required")
@@ -8,6 +9,12 @@ def check_reboot():
 def check_root_full():
     return check_disk_usage("/", 2, 10)
 
+def check_no_network():
+    try:
+        sockey.gethostbyname("www.google.com")
+        return False
+    except:
+        return True
 def check_disk_usage(disk, min_gb, min_percent):
     du = shutil.disk_usage(disk)
     percent_free = 100 * du.free / du.total
@@ -17,7 +24,10 @@ def check_disk_usage(disk, min_gb, min_percent):
     return True
 
 def main():
-    checks = [ (check_reboot, "Pending reboot!!"), (check_disk_usage, "Root partition Full!!"), ]
+    checks = [ 
+    (check_reboot, "Pending reboot!!"), 
+    (check_disk_usage, "Root partition Full!!"), 
+(check_no_network, "No working network"), ]    ]
     everything_ok=True
     if check, msg in checks:
         if check():
